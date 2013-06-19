@@ -1,0 +1,155 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf=8">
+    <title></title>
+    <!-- CSS -->
+    <link href="css/index.css" rel="stylesheet">
+</head>
+<body onload="setup();">
+
+<canvas id="canvas" height="800" width="600">
+</canvas>
+
+<!-- JS -->
+<script src="js/index.js"></script>
+
+<script>
+    function setup()
+    {
+
+
+        var fov = 250;
+
+        var SCREEN_WIDTH = 800;
+        var SCREEN_HEIGHT = 600;
+
+        var HALF_WIDTH = SCREEN_WIDTH/2;
+        var HALF_HEIGHT = SCREEN_HEIGHT/2;
+
+        var numPoints = 200;
+
+        document.onkeydown = function (e) {
+            console.log(e.keyCode);
+
+            switch (e.keyCode) {
+                case 39:    // move right
+                    rotate(0.04);
+                    break;
+                case 37:    // move left
+                    rotate(-0.04);
+                    break;
+                case 38:    // move up
+                    rotate(0.04, 'x');
+                    break;
+                case 40:    // move down
+                    rotate(-0.04, 'x');
+                    break;
+                default:
+                    break;
+            }
+        };
+
+
+        function rotate(angle, axes) {
+            for (i=0; i<numPoints; i++)
+            {
+                point3d = points[i];
+                if (axes == 'x') {
+                    rotatePointAroundX(point3d, angle);
+                } else {
+                    rotatePointAroundY(point3d, angle);
+                }
+            }
+        }
+
+        function draw3Din2D(point3d)
+        {
+            x3d = point3d[0];
+            y3d = point3d[1];
+            z3d = point3d[2];
+            var scale = fov/(fov+z3d);
+            var x2d = (x3d * scale) + HALF_WIDTH;
+            var y2d = (y3d * scale)  + HALF_HEIGHT;
+
+
+            c.lineWidth= scale;
+            c.strokeStyle = "rgb(255,255,255)";
+            c.beginPath();
+            c.moveTo(x2d,y2d);
+            c.lineTo(x2d+scale,y2d);
+            c.stroke();
+
+        }
+
+        var canvas = document.getElementById('canvas');
+        var c = canvas.getContext('2d');
+
+        var points = [];
+
+        function initPoints()
+        {
+            for (i=0; i<numPoints; i++)
+            {
+                point = [(Math.random()*400)-200, (Math.random()*400)-200 , (Math.random()*400)-200 ];
+                points.push(point);
+            }
+
+        }
+
+        function render()
+        {
+            c.fillStyle="rgb(0,0,0)";
+            c.fillRect(0,0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+            for (i=0; i<numPoints; i++)
+            {
+                point3d = points[i];
+                //rotatePointAroundY(point3d, 0.04);
+                draw3Din2D(point3d);
+
+            }
+        }
+
+        function rotatePointAroundY(point3d, angle)
+        {
+            x = point3d[0];
+            z = point3d[2];
+
+            cosRY = Math.cos(angle);
+            sinRY = Math.sin(angle);
+            tempz = z;
+            tempx = x;
+
+
+            x= (tempx*cosRY)+(tempz*sinRY);
+            z= (tempx*-sinRY)+(tempz*cosRY);
+            point3d[0] = x;
+            point3d[2] = z;
+        }
+
+        function rotatePointAroundX(point3d, angle) {
+            x = point3d[1];
+            z = point3d[2];
+
+            cosRY = Math.cos(angle);
+            sinRY = Math.sin(angle);
+            tempz = z;
+            tempx = x;
+
+
+            x= (tempx*cosRY)+(tempz*sinRY);
+            z= (tempx*-sinRY)+(tempz*cosRY);
+            point3d[1] = x;
+            point3d[2] = z;
+        }
+
+
+        initPoints();
+
+        var loop = setInterval(function(){render();}, 50);
+
+    }
+</script>
+</body>
+</html>
